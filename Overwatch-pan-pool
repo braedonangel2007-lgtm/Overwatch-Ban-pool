@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Overwatch 5-Round Draft Ban</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #0f1923;
+    color: white;
+    margin: 0;
+}
+
+h1 {
+    background: #f06414;
+    padding: 20px;
+    margin: 0;
+    text-align: center;
+}
+
+.top-bar {
+    text-align: center;
+    padding: 15px;
+    background: #1b1b1b;
+}
+
+.section {
+    margin: 30px;
+}
+
+.section h2 {
+    border-bottom: 2px solid #f06414;
+    padding-bottom: 5px;
+}
+
+.heroes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.hero {
+    background: #1f2a36;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: 0.2s;
+}
+
+.hero:hover {
+    background: #f06414;
+}
+
+.banned {
+    background: #a12b2b !important;
+    text-decoration: line-through;
+    cursor: not-allowed;
+}
+
+.team-section {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px;
+}
+
+.team-box {
+    width: 40%;
+    background: #1b1b1b;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+button {
+    margin: 10px;
+    padding: 10px 20px;
+    background: #f06414;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background: #ff7b2f;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Overwatch 5-Round Ban Draft</h1>
+
+<div class="top-bar">
+    <h2 id="turnDisplay">Round 1 - Team 1 Ban</h2>
+</div>
+
+<div class="team-section">
+    <div class="team-box">
+        <h3>Team 1 Bans</h3>
+        <div id="team1Bans">None</div>
+    </div>
+
+    <div class="team-box">
+        <h3>Team 2 Bans</h3>
+        <div id="team2Bans">None</div>
+    </div>
+</div>
+
+<div class="section">
+    <h2>🛡 Tank</h2>
+    <div class="heroes" id="tankList"></div>
+</div>
+
+<div class="section">
+    <h2>⚔ DPS</h2>
+    <div class="heroes" id="dpsList"></div>
+</div>
+
+<div class="section">
+    <h2>💉 Support</h2>
+    <div class="heroes" id="supportList"></div>
+</div>
+
+<center>
+<button onclick="resetDraft()">Reset Draft</button>
+</center>
+
+<script>
+const tanks = ["D.Va","Doomfist","Junker Queen","Orisa","Ramattra","Reinhardt","Roadhog","Sigma","Winston","Wrecking Ball","Zarya"];
+const dps = ["Ashe","Bastion","Cassidy","Echo","Genji","Hanzo","Junkrat","Mei","Pharah","Reaper","Sojourn","Soldier: 76","Sombra","Symmetra","Torbjörn","Tracer","Widowmaker"];
+const supports = ["Ana","Baptiste","Brigitte","Illari","Kiriko","Lifeweaver","Lúcio","Mercy","Moira","Zenyatta"];
+
+let round = 1;
+const maxRounds = 5;
+let currentTeam = 1;
+
+let team1Bans = [];
+let team2Bans = [];
+
+function renderSection(list, elementId) {
+    const container = document.getElementById(elementId);
+    container.innerHTML = "";
+
+    list.forEach(hero => {
+        const div = document.createElement("div");
+        div.className = "hero";
+        div.textContent = hero;
+
+        if (team1Bans.includes(hero) || team2Bans.includes(hero)) {
+            div.classList.add("banned");
+        }
+
+        div.onclick = () => attemptBan(hero);
+        container.appendChild(div);
+    });
+}
+
+function attemptBan(hero) {
+    if (round > maxRounds) return;
+    if (team1Bans.includes(hero) || team2Bans.includes(hero)) return;
+
+    if (currentTeam === 1) {
+        team1Bans.push(hero);
+        currentTeam = 2;
+    } else {
+        team2Bans.push(hero);
+        currentTeam = 1;
+        round++;
+    }
+
+    updateDisplay();
+}
+
+function updateDisplay() {
+    document.getElementById("team1Bans").innerHTML =
+        team1Bans.length ? team1Bans.join("<br>") : "None";
+
+    document.getElementById("team2Bans").innerHTML =
+        team2Bans.length ? team2Bans.join("<br>") : "None";
+
+    if (round > maxRounds) {
+        document.getElementById("turnDisplay").innerText = "Draft Complete!";
+    } else {
+        document.getElementById("turnDisplay").innerText =
+            `Round ${round} - Team ${currentTeam} Ban`;
+    }
+
+    renderAll();
+}
+
+function renderAll() {
+    renderSection(tanks, "tankList");
+    renderSection(dps, "dpsList");
+    renderSection(supports, "supportList");
+}
+
+function resetDraft() {
+    round = 1;
+    currentTeam = 1;
+    team1Bans = [];
+    team2Bans = [];
+    updateDisplay();
+}
+
+updateDisplay();
+</script>
+
+</body>
+</html>
